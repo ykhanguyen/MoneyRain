@@ -10,14 +10,16 @@ app.disable('x-powered-by');
 var server = require('http').Server(app);
 
 app.use(express.static(__dirname + '/public'));
+var SOCKET_LIST = {};
+app.set('port', process.env.PORT || 3333);
+
+
 
 app.get('/', function(req, res) {
     res.sendFile('index.html');
 });
 
-var SOCKET_LIST = {};
-app.set('port', process.env.PORT || 3333);
-server.listen('port', function(req, res) {
+server.listen(app.get('port'), function(req, res) {
     console.log("Server is currently start");
 });
 
@@ -138,3 +140,4 @@ setInterval(function() {
     }
 }, 33);
 */
+
