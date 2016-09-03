@@ -16,8 +16,8 @@ app.get('/', function(req, res) {
 });
 
 var SOCKET_LIST = {};
-
-server.listen(3333, function(req, res) {
+app.set('port', process.env.PORT || 3333);
+server.listen('port', function(req, res) {
     console.log("Server is currently start");
 });
 
