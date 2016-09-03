@@ -1,113 +1,111 @@
-<div id="score">
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <title> Money Rain </title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="theme.css">
+</head>
 
-</div>
-<canvas id="ctx" width="350" height="500" style="border:1px solid #000000;"></canvas>
-
-<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
-    <div>Hello!</div>
-</div>
-
-<form id="chat-form">
-    <input id="chat-input" type="text" style="width:500px" />
-</form>
-
-<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script>
-    var chatText = document.getElementById('chat-text');
-    var chatInput = document.getElementById('chat-input');
-    var chatForm = document.getElementById('chat-form');
-    var ctx = document.getElementById("ctx").getContext("2d");
-    ctx.font = '30px Arial';
-
-    var socket = io();
-    //var color = ["red", "green"];
-    socket.on('newUpdate',function(data){
-        ctx.clearRect(0,0,350,500);
-        $('#score').html("");
-        for(var i = 0 ; i < data.player.length; i++) {
-            ctx.beginPath();
-            ctx.rect(data.player[i].x - 5, data.player[i].y - 10, 20, 40);
-            ctx.fillStyle = data.player[i].color;
-            ctx.fill();
-            $('#score').append(i+ ": " + data.player[i].score + "<br />");
-        }
-
-        for(var i = 0 ; i < data.bullet.length; i++) {
-            ctx.beginPath();
-            ctx.arc(data.bullet[i].x, data.bullet[i].y, 7, 0, Math.PI * 2, true);
-            ctx.fillStyle = data.bullet[i].color;
-            ctx.fill();
-        }
-
-        for(var i = 0 ; i < data.coin.length; i++) {
-            ctx.beginPath();
-            ctx.arc(data.coin[i].x, data.coin[i].y, 10, 0, Math.PI * 2, true);
-            ctx.fillStyle = data.coin[i].color;
-            ctx.fill();
-        }
-
-    });
-    /*
-    socket.on('addToChat',function(data){
-        chatText.innerHTML += '<div>' + data + '</div>';
-    });
-    socket.on('evalAnswer',function(data){
-        console.log(data);
-    });
+<body>
+    <div class="page-header" >
+        <h1>Welcome to Money Rain Multiplayer</h1>
+        <h2> Create by Kyle Nguyen </h2>
+        <h3> Check out more <a href="www.kylenguyen.xyz"> here </a></h3>
+        <h4> Press arror keys,A, S, and D to play</h4>
+        <h4> You will get point depends on color matching </h4>
+        <h5> Have fun</h5>
 
 
-    chatForm.onsubmit = function(e){
-        e.preventDefault();
-        if(chatInput.value[0] === '/')
-            socket.emit('evalServer',chatInput.value.slice(1));
-        else
-            socket.emit('sendMsgToServer',chatInput.value);
-        chatInput.value = '';
-    }
-    */
+    </div>
+    <div id="score-box">
+        <h5> Score: </h5>
+        <div id="score"></div>
+    </div>
+    <div id="container">
+        <canvas id="ctx" width="350" height="500"></canvas>
+    </div>
+    <div id="chat-box">
+        <div id="chat-text">
+            <div>Hello! This is the chat box</div>
+        </div>
 
-    document.onkeydown = function(event){
-        if(event.keyCode === 39)    //right
-            socket.emit('keyPressed',{move:'right',state:true});
-        else if(event.keyCode === 37) //left
-            socket.emit('keyPressed',{move:'left',state:true});
-        else if(event.keyCode === 65) // w
-            socket.emit('keyPressed',{move:'attack1',state:true});
-        else if(event.keyCode === 83) // w
-            socket.emit('keyPressed',{move:'attack2',state:true});
-        else if(event.keyCode === 68) // w
-            socket.emit('keyPressed',{move:'attack3',state:true});
+        <form id="chat-form">
+            <input id="chat-input" type="text" />
+        </form>
+    </div>
 
-    };
+    <script>
+        var chatText = $('#chat-text')[0];
+        var chatInput = $('#chat-input')[0];
+        var chatForm = $('#chat-form')[0];
+        var ctx = $("#ctx")[0].getContext("2d");
 
-    document.onkeyup = function(event) {
-        if(event.keyCode === 39)    //d
-            socket.emit('keyPressed',{move:'right',state:false});
-        else if(event.keyCode === 83)   //s
-            socket.emit('keyPressed',{move:'down',state:false});
-        else if(event.keyCode === 37) //a
-            socket.emit('keyPressed',{move:'left',state:false});
-        else if(event.keyCode === 87) // w
-            socket.emit('keyPressed',{move:'up',state:false});
-        //else if(event.keyCode === 65) // w
-        //    socket.emit('keyPressed',{move:'attack',state:false});
-    };
+        var socket = io();
+        socket.on('newUpdate',function(data){
+            ctx.clearRect(0,0,350,500);
+            $('#score').html("");
+            for(var i = 0 ; i < data.player.length; i++) {
+                ctx.beginPath();
+                ctx.rect(data.player[i].x - 5, data.player[i].y - 10, 20, 40);
+                ctx.fillStyle = data.player[i].color;
+                ctx.fill();
+                $('#score').append("Player " + ("" + (data.player[i].id)).slice(2,5) +
+                        ": " + data.player[i].score + "<br />");
+            }
 
-    document.onmousedown = function(event){
-        socket.emit('keyPressed',{move:'attack',state:true});
-    };
-    document.onmouseup = function(event){
-        socket.emit('keyPressed',{move:'attack',state:false});
-    };
-    document.onmousemove = function(event){
-        var x = -250 + event.clientX - 8;
-        var y = -250 + event.clientY - 8;
-        var angle = Math.atan2(y,x) / Math.PI * 180;
-        socket.emit('keyPressed',{move:'mouseAngle',state:angle});
-    };
+            for(var i = 0 ; i < data.bullet.length; i++) {
+                ctx.beginPath();
+                ctx.arc(data.bullet[i].x, data.bullet[i].y, 7, 0, Math.PI * 2, true);
+                ctx.fillStyle = data.bullet[i].color;
+                ctx.fill();
+            }
+
+            for(var i = 0 ; i < data.coin.length; i++) {
+                ctx.beginPath();
+                ctx.arc(data.coin[i].x, data.coin[i].y, 10, 0, Math.PI * 2, true);
+                ctx.fillStyle = data.coin[i].color;
+                ctx.fill();
+            }
+
+        });
+
+        socket.on('mes_to_client',function(data){
+            chatText.innerHTML += '<div>' + data + '</div>';
+        });
 
 
+        chatForm.onsubmit = function(e){
+            e.preventDefault();
+            socket.emit('send_to_server', {
+                value: chatInput.value
+            });
+            chatInput.value = '';
+        };
 
 
-</script>
+        document.onkeydown = function(event){
+            if(event.keyCode === 39)    //right
+                socket.emit('keyPressed',{move:'right',state:true});
+            else if(event.keyCode === 37) //left
+                socket.emit('keyPressed',{move:'left',state:true});
+            else if(event.keyCode === 65) // w
+                socket.emit('keyPressed',{move:'attack1',state:true});
+            else if(event.keyCode === 83) // w
+                socket.emit('keyPressed',{move:'attack2',state:true});
+            else if(event.keyCode === 68) // w
+                socket.emit('keyPressed',{move:'attack3',state:true});
+
+        };
+
+        document.onkeyup = function(event) {
+            if(event.keyCode === 39)    //d
+                socket.emit('keyPressed',{move:'right',state:false});
+            else if(event.keyCode === 37) //a
+                socket.emit('keyPressed',{move:'left',state:false});
+        };
+
+    </script>
+
+</body>

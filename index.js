@@ -172,7 +172,6 @@ var Bullet = function(parent_id, color) {
                     Player.list[self.parent_id].score--;
                 }
 
-                console.log(Player.list[self.parent_id].score);
                 delete Coin.list[coin.id];
             }
         }
@@ -248,6 +247,13 @@ io.sockets.on('connection', function(socket) {
     socket.on('disconnect', function() {
         Player.disconnected(socket);
         delete SOCKET_LIST[socket.id];
+    });
+
+    socket.on('send_to_server', function(data) {
+        var player_id = ("" + socket.id).slice(2,5);
+        for (var i in SOCKET_LIST) {
+            SOCKET_LIST[i].emit('mes_to_client', player_id + ": " + data.value);
+        }
     });
 });
 
