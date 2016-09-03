@@ -19,6 +19,7 @@ server.listen(3333, function(req, res) {
     console.log("Server is currently start");
 });
 
+/*
 var Object = function() {
     var self = {
         x:Math.random() * 450 + 1,
@@ -134,3 +135,4 @@ setInterval(function() {
         socket.emit('newUpdate', all_update);
     }
 }, 33);
+*/
