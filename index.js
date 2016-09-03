@@ -11,7 +11,7 @@ var server = require('http').Server(app);
 
 app.use(express.static(__dirname + '/public'));
 var SOCKET_LIST = {};
-app.set('port', process.env.PORT || 3333);
+app.set('port', process.env.PORT || 2222);
 
 
 
@@ -29,6 +29,7 @@ var Object = function() {
         x:Math.random() * 450 + 1,
         y:450,
         dx: 0,
+        dy: 0,
         id: 0
     };
 
@@ -39,6 +40,7 @@ var Object = function() {
     self.updatePosition = function() {
 
         self.x += self.dx;
+        self.y += self.dy;
         if (self.x < 0) {
             self.x = 5;
         } else if (self.x > 500) {
@@ -62,7 +64,7 @@ var Player = function(id) {
     self.left = false;
     self.attack = false;
     self.speed = 10;
-
+    self.bullet_color = "";
     self.updateSpeed = function() {
         if (self.right) {
             self.dx = self.speed;
@@ -78,12 +80,24 @@ var Player = function(id) {
     self.update = function() {
         self.updateSpeed();
         super_update();
+
+        if (self.attack) {
+            self.bullet_out();
+        }
+
+        self.bullet_out = function() {
+            var bullet = Bullet(self.id, self.bullet_color);
+            bullet.x = self.x;
+            bullet.y = self.y;
+        };
+
+        self.attack = false;
     };
 
     Player.list[id] = self;
     return self;
 };
-
+var bullet_color_arr = ["red", "green", "blue"];
 Player.list = {};
 Player.connected = function(socket) {
     var player = Player(socket.id);
@@ -92,8 +106,15 @@ Player.connected = function(socket) {
             player.left = data.state;
         } else if (data.move == 'right') {
             player.right = data.state;
-        } else if  (data.move == 'attack') {
+        } else if  (data.move == 'attack1') {
             player.attack = data.state;
+            player.bullet_color = bullet_color_arr[0];
+        } else if (data.move == 'attack2') {
+            player.attack = data.state;
+            player.bullet_color = bullet_color_arr[1];
+        } else if (data.move == 'attack3') {
+            player.attack = data.state;
+            player.bullet_color = bullet_color_arr[2];
         }
     })
 };
@@ -116,6 +137,46 @@ Player.update = function() {
     return dataret;
 };
 
+var Bullet = function(parent_id, color) {
+    var self = Object();
+    self.id = Math.random();
+    self.dy = -10;
+    self.parent_id = parent_id;
+    self.remove = false;
+    self.color = color;
+
+    var super_update = self.update;
+
+    self.update = function() {
+        if (self.y < 0 ) {
+            self.remove = true;
+        }
+        
+        super_update();
+    };
+    Bullet.list[self.id] = self;
+    return self;
+};
+
+Bullet.list = {};
+
+Bullet.update = function() {
+    var dataret = [];
+    for (var i in Bullet.list) {
+        var bullet = Bullet.list[i];
+        bullet.update();
+        if (bullet.remove) {
+            delete Bullet.list[i];
+        } else {
+            dataret.push({
+                x: bullet.x,
+                y: bullet.y,
+                color: bullet.color
+            });
+        }
+    }
+    return dataret;
+};
 
 var io = require('socket.io')(server,{});
 io.sockets.on('connection', function(socket) {
@@ -131,7 +192,8 @@ io.sockets.on('connection', function(socket) {
 
 setInterval(function() {
     var all_update = {
-        player: Player.update()
+        player: Player.update(),
+        bullet: Bullet.update()
     };
 
     for (var i in SOCKET_LIST) {
@@ -139,5 +201,4 @@ setInterval(function() {
         socket.emit('newUpdate', all_update);
     }
 }, 33);
-
 

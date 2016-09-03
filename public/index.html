@@ -17,22 +17,31 @@
     ctx.font = '30px Arial';
 
     var socket = io();
-    var color = ["red", "green"];
+    //var color = ["red", "green"];
     socket.on('newUpdate',function(data){
         ctx.clearRect(0,0,500,500);
         for(var i = 0 ; i < data.player.length; i++) {
             ctx.beginPath();
             //ctx.fillText(data.player[i].number,data.player[i].x,data.player[i].y);
-            ctx.fillRect(data.player[i].x - 5, data.player[i].y - 10, 10, 20);
+            //ctx.fillRect(data.player[i].x - 5, data.player[i].y - 10, 10, 20);
+            //ctx.arc(data.player[i].x, data.player[i].y, 10, 0, Math.PI * 2, true);
+            ctx.rect(data.player[i].x - 5, data.player[i].y - 10, 20, 40);
             ctx.fillStyle = data.player[i].color;
-            console.log(data.player[i].x);
-            console.log(data.player[i].y);
+            //console.log(data.player[i].color);
+            //console.log(data.player[i].x);
+            //console.log(data.player[i].y);
             ctx.fill();
         }
-        /*
-        for(var i = 0 ; i < data.bullet.length; i++)
-            ctx.fillRect(data.bullet[i].x-5,data.bullet[i].y-5,10,10);
-            */
+
+        for(var i = 0 ; i < data.bullet.length; i++) {
+            ctx.beginPath();
+            //ctx.fillRect(data.bullet[i].x - 5, data.bullet[i].y - 5, 10, 10);
+            ctx.arc(data.bullet[i].x, data.bullet[i].y, 7, 0, Math.PI * 2, true);
+            ctx.fillStyle = data.bullet[i].color;
+            //console.log(data.bullet[i].color);
+            ctx.fill();
+        }
+
     });
     /*
     socket.on('addToChat',function(data){
@@ -54,29 +63,30 @@
     */
 
     document.onkeydown = function(event){
-        if(event.keyCode === 68)    //d
+        if(event.keyCode === 39)    //right
             socket.emit('keyPressed',{move:'right',state:true});
-        else if(event.keyCode === 83)   //s
-            socket.emit('keyPressed',{move:'down',state:true});
-        else if(event.keyCode === 65) //a
+        else if(event.keyCode === 37) //left
             socket.emit('keyPressed',{move:'left',state:true});
-        else if(event.keyCode === 87) // w
-            socket.emit('keyPressed',{move:'up',state:true});
-        else if(event.keyCode === 32) // w
-            socket.emit('keyPressed',{move:'attack',state:true});
+        else if(event.keyCode === 65) // w
+            socket.emit('keyPressed',{move:'attack1',state:true});
+        else if(event.keyCode === 83) // w
+            socket.emit('keyPressed',{move:'attack2',state:true});
+        else if(event.keyCode === 68) // w
+            socket.emit('keyPressed',{move:'attack3',state:true});
 
     };
+
     document.onkeyup = function(event){
-        if(event.keyCode === 68)    //d
+        if(event.keyCode === 39)    //d
             socket.emit('keyPressed',{move:'right',state:false});
         else if(event.keyCode === 83)   //s
             socket.emit('keyPressed',{move:'down',state:false});
-        else if(event.keyCode === 65) //a
+        else if(event.keyCode === 37) //a
             socket.emit('keyPressed',{move:'left',state:false});
         else if(event.keyCode === 87) // w
             socket.emit('keyPressed',{move:'up',state:false});
-        else if(event.keyCode === 32) // w
-            socket.emit('keyPressed',{move:'attack',state:false});
+        //else if(event.keyCode === 65) // w
+        //    socket.emit('keyPressed',{move:'attack',state:false});
     };
 
     document.onmousedown = function(event){
