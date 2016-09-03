@@ -5,6 +5,8 @@
 
 var express = require('express');
 var app = express();
+app.disable('x-powered-by');
+
 var server = require('http').Server(app);
 
 app.use(express.static(__dirname + '/public'));
