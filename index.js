@@ -135,7 +135,9 @@ Player.update = function() {
         dataret.push({
             x: player.x,
             y: player.y,
-            color: player.color
+            color: player.color,
+            id: player.id,
+            score: player.score
         });
     }
     return dataret;
