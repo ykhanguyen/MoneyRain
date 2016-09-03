@@ -26,7 +26,7 @@ server.listen(app.get('port'), function(req, res) {
 
 var Object = function() {
     var self = {
-        x:Math.random() * 450 + 1,
+        x:Math.random() * 350 + 10,
         y:450,
         dx: 0,
         dy: 0,
@@ -41,10 +41,10 @@ var Object = function() {
 
         self.x += self.dx;
         self.y += self.dy;
-        if (self.x < 0) {
+        if (self.x <= 5) {
             self.x = 5;
-        } else if (self.x > 500) {
-            self.x = 495;
+        } else if (self.x >= 335) {
+            self.x = 335;
         }
     };
 
@@ -87,8 +87,8 @@ var Player = function(id) {
 
         self.bullet_out = function() {
             var bullet = Bullet(self.id, self.bullet_color);
-            bullet.x = self.x;
-            bullet.y = self.y;
+            bullet.x = self.x + 5;
+            bullet.y = self.y ;
         };
 
         self.attack = false;
@@ -178,6 +178,44 @@ Bullet.update = function() {
     return dataret;
 };
 
+var Coin = function(color) {
+    var self = Object();
+    self.id = Math.random();
+    self.dy = 5;
+    self.remove = false;
+    self.color = color;
+
+    var super_update = self.update;
+    self.update = function() {
+        if (self.y > 500) {
+            self.remove = true;
+        }
+        super_update();
+    };
+    Coin.list[self.id] = self;
+
+    return self;
+};
+
+Coin.list = {};
+Coin.update = function() {
+    var dataret = [];
+    for (var i in Coin.list) {
+        var coin = Coin.list[i];
+        coin.update();
+        if (coin.remove) {
+            delete Bullet.list[i];
+        } else {
+            dataret.push({
+                x: coin.x,
+                y: coin.y,
+                color: coin.color
+            });
+        }
+    }
+    return dataret;
+}
+
 var io = require('socket.io')(server,{});
 io.sockets.on('connection', function(socket) {
     socket.id = Math.random();
@@ -191,9 +229,21 @@ io.sockets.on('connection', function(socket) {
 });
 
 setInterval(function() {
+    if(Math.random() < 0.1) {
+        var ran_index = parseInt(Math.random() * 3);
+        var coin = Coin(bullet_color_arr[ran_index]);
+
+        coin.x = Math.random() * 340;
+        coin.y = -5;
+    }
+
+}, 30);
+
+setInterval(function() {
     var all_update = {
         player: Player.update(),
-        bullet: Bullet.update()
+        bullet: Bullet.update(),
+        coin: Coin.update()
     };
 
     for (var i in SOCKET_LIST) {
@@ -201,4 +251,6 @@ setInterval(function() {
         socket.emit('newUpdate', all_update);
     }
 }, 33);
+
+
 

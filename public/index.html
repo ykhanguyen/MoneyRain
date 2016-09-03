@@ -1,4 +1,4 @@
-<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
+<canvas id="ctx" width="350" height="500" style="border:1px solid #000000;"></canvas>
 
 <div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
     <div>Hello!</div>
@@ -19,7 +19,7 @@
     var socket = io();
     //var color = ["red", "green"];
     socket.on('newUpdate',function(data){
-        ctx.clearRect(0,0,500,500);
+        ctx.clearRect(0,0,350,500);
         for(var i = 0 ; i < data.player.length; i++) {
             ctx.beginPath();
             //ctx.fillText(data.player[i].number,data.player[i].x,data.player[i].y);
@@ -38,6 +38,15 @@
             //ctx.fillRect(data.bullet[i].x - 5, data.bullet[i].y - 5, 10, 10);
             ctx.arc(data.bullet[i].x, data.bullet[i].y, 7, 0, Math.PI * 2, true);
             ctx.fillStyle = data.bullet[i].color;
+            //console.log(data.bullet[i].color);
+            ctx.fill();
+        }
+
+        for(var i = 0 ; i < data.coin.length; i++) {
+            ctx.beginPath();
+            //ctx.fillRect(data.bullet[i].x - 5, data.bullet[i].y - 5, 10, 10);
+            ctx.arc(data.coin[i].x, data.coin[i].y, 10, 0, Math.PI * 2, true);
+            ctx.fillStyle = data.coin[i].color;
             //console.log(data.bullet[i].color);
             ctx.fill();
         }
@@ -76,7 +85,7 @@
 
     };
 
-    document.onkeyup = function(event){
+    document.onkeyup = function(event) {
         if(event.keyCode === 39)    //d
             socket.emit('keyPressed',{move:'right',state:false});
         else if(event.keyCode === 83)   //s
