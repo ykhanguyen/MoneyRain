@@ -56,6 +56,9 @@ var Object = function() {
     return self;
 };
 
+
+
+
 var Player = function(id) {
     var self = Object();
     self.id = id;
@@ -65,6 +68,7 @@ var Player = function(id) {
     self.attack = false;
     self.speed = 10;
     self.bullet_color = "";
+    self.score = 0;
     self.updateSpeed = function() {
         if (self.right) {
             self.dx = self.speed;
@@ -137,6 +141,7 @@ Player.update = function() {
     return dataret;
 };
 
+
 var Bullet = function(parent_id, color) {
     var self = Object();
     self.id = Math.random();
@@ -153,6 +158,22 @@ var Bullet = function(parent_id, color) {
         }
         
         super_update();
+
+        for (var i in Coin.list) {
+            var coin = Coin.list[i];
+            if (self.getDistance(coin) <= 20 ) {
+                self.remove = true;
+                coin.remove = true;
+                if (coin.color === self.color) {
+                    Player.list[self.parent_id].score++;
+                } else {
+                    Player.list[self.parent_id].score--;
+                }
+
+                console.log(Player.list[self.parent_id].score);
+                delete Coin.list[coin.id];
+            }
+        }
     };
     Bullet.list[self.id] = self;
     return self;
